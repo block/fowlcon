@@ -85,7 +85,7 @@ As you walk through the tree, each concept gets a status:
 git clone https://github.com/block/fowlcon.git
 
 # Run the install script
-cd fowlcon && ./script/install
+cd fowlcon && ./scripts/install
 ```
 
 This copies agent and command files to `~/.claude/` (or your platform's agent directory).
