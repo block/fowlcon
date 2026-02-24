@@ -1,6 +1,6 @@
 # Contributing to Fowlcon
 
-Thank you for your interest in contributing to Fowlcon! Please read [Block's general contributing guidelines](https://github.com/block/fowlcon?tab=contributing-ov-file) first -- they cover forking, branching, commit conventions, PR process, CLA/DCO, and code of conduct.
+Thank you for your interest in contributing to Fowlcon! Please read [Block's general contributing guidelines](https://github.com/block/.github/blob/main/CONTRIBUTING.md) first -- they cover forking, branching, commit conventions, PR process, CLA/DCO, and code of conduct.
 
 This document covers **Fowlcon-specific** guidance.
 
