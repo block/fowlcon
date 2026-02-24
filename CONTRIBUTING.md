@@ -1,17 +1,21 @@
 # Contributing to Fowlcon
 
-Thank you for your interest in contributing to Fowlcon! This project is an agentic code review tool -- most of the "code" is markdown prompts and shell scripts, not a traditional application.
+Thank you for your interest in contributing to Fowlcon! Please read [Block's general contributing guidelines](https://github.com/block/fowlcon?tab=contributing-ov-file) first -- they cover forking, branching, commit conventions, PR process, CLA/DCO, and code of conduct.
 
-## Getting Started
+This document covers **Fowlcon-specific** guidance.
 
-### Prerequisites
+## What This Project Is
+
+Fowlcon is an agentic code review tool. Most of the "code" is **markdown prompt files** and **shell scripts**, not a traditional application. Contributing here means writing prompts, refining agent behavior, and building reliable state management scripts.
+
+## Prerequisites
 
 - A CLI that supports agent commands (Claude Code, Amp, Cursor, or similar)
 - `bash` (for shell scripts)
-- `bats-core` (for running shell script tests): `brew install bats-core` or see [bats-core installation](https://bats-core.readthedocs.io/en/stable/installation.html)
+- `bats-core` (for shell script tests): `brew install bats-core` or see [bats-core installation](https://bats-core.readthedocs.io/en/stable/installation.html)
 - `gh` CLI (for testing against real PRs): `brew install gh`
 
-### Installation
+## Installation
 
 ```bash
 git clone https://github.com/block/fowlcon.git
@@ -19,7 +23,7 @@ cd fowlcon
 ./script/install
 ```
 
-### Running Tests
+## Testing
 
 ```bash
 # Run all shell script tests
@@ -29,28 +33,25 @@ bats tests/scripts/
 bats tests/scripts/test-update-node-status.bats
 ```
 
-## How to Contribute
+## Fowlcon-Specific Conventions
 
-### Reporting Issues
+### Shell Scripts
 
-Use the [bug report template](.github/ISSUE_TEMPLATE/bug-report.md) for bugs. For feature requests or design discussions, open a regular issue.
+- TDD with bats-core. Write the failing test first.
+- All writes are atomic: temp file + `mv`.
+- Single-writer assumption must be maintained.
 
-### Submitting Changes
+### Agent Prompts
 
-1. Fork the repository
-2. Create a feature branch from `main`
-3. Make your changes following the conventions in [AGENTS.md](./AGENTS.md)
-4. For shell scripts: write tests first (TDD with bats-core)
-5. For agent prompts: test against a real PR and document results
-6. Every change should: verify (tests pass), document (update relevant docs), commit
-7. Open a PR with a clear description of what and why
+- Prompts can't be TDD'd conventionally. Instead: test against a real PR, verify output structure and coverage, document results in the PR description.
+- Agents are documentarians -- they describe, never critique.
+- Keep each agent focused on one thing.
 
-### What Makes a Good PR
+### Every Change Must
 
-- **Small and focused.** One logical change per PR. Easy to review (we eat our own cooking here).
-- **Tested.** Shell scripts have bats tests. Prompt changes are tested against real PRs with results documented.
-- **Documented.** If you add a file, explain its purpose. If you change behavior, update AGENTS.md or README.md.
-- **Principled.** Read the 10 core principles in README.md. Your change should align with them.
+1. **Verify** -- tests pass, or manual testing is documented
+2. **Document** -- update AGENTS.md or README.md if behavior changes
+3. **Align with principles** -- read the 10 core principles in README.md
 
 ### Areas Where Help is Welcome
 
@@ -58,11 +59,7 @@ Use the [bug report template](.github/ISSUE_TEMPLATE/bug-report.md) for bugs. Fo
 - Agent prompt refinement (better tree construction, clearer explanations)
 - Testing against diverse PRs (different languages, sizes, patterns)
 - Documentation and examples
-- TUI exploration (V1.01 -- see README for context)
-
-## Code of Conduct
-
-This project follows the [Block Open Source Code of Conduct](https://block.xyz/code-of-conduct). Be kind, be constructive.
+- TUI exploration (see README for context)
 
 ## Questions?
 
