@@ -73,6 +73,15 @@ See the 10 core principles in README.md. Key ones for contributors:
 - **Opinionated defaults** -- prefer good defaults over configuration knobs
 - **Transparent memory** -- all persistent state changes must be proposed to the customer and approved
 
+### Context Window Hygiene
+
+Files in this repo are loaded into LLM context windows during operation. Stale references to old versions, deprecated features, or forward-looking spec commentary waste context tokens and can confuse agents. When implementing a new version, remove or replace references to the previous version's planning notes.
+
+When adding forward-looking version notes to files, add an entry here so future agents know to clean them up.
+
+**Known examples:**
+- `docs/templates/review-comments.md` has a **V1.1 Posting Compatibility** section (~50 lines) with GitHub API mapping, GraphQL recommendations, and graceful degradation strategy. This is forward-looking spec commentary for V1.0. When V1.1 posting is implemented, replace this section with actual implementation docs.
+
 ### Commits
 
 - One logical change per commit
