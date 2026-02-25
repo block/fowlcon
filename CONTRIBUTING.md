@@ -20,7 +20,7 @@ Fowlcon is an agentic code review tool. Most of the "code" is **markdown prompt 
 ```bash
 git clone https://github.com/block/fowlcon.git
 cd fowlcon
-./script/install
+./scripts/install
 ```
 
 ## Testing

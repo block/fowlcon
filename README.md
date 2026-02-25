@@ -58,7 +58,11 @@ Fowlcon is an agentic tool built as markdown prompts -- it runs inside Claude Co
 /review-pr https://github.com/org/repo/pull/123
 ```
 
-The orchestrator (Opus) analyzes the PR by spawning concept researchers (Sonnet) that investigate different areas of the code. It builds a review tree, verifies the PR description against the actual diff, checks that every changed line is covered, and walks you through the result.
+The orchestrator (Opus) analyzes the PR by spawning concept researchers (Sonnet) that investigate different areas of the code. It builds a review tree, verifies the PR description against the actual diff, and checks that every changed line is covered.
+
+The walkthrough is conversational -- you confirm concepts you understand, short-circuit patterns with "I get it! Accept the rest," and dig deeper where you have questions. Every node starts as pending until you make a decision.
+
+If the tree reveals too much complexity, Fowlcon helps you send the author specific structural feedback -- the concept map itself becomes the review.
 
 ### The Review Tree
 
@@ -67,7 +71,7 @@ The tree uses two node types:
 - **Concept nodes** break a change into sub-concepts (e.g., "guard mechanism" has "class," "modes," "DI pattern")
 - **Variation nodes** collapse repeated patterns (e.g., 194 handlers getting the same 3-line change). One detailed example, the rest marked as `{repeat}`.
 
-Each node has a `context:` block -- the orchestrator's explanation of what the concept is and why it matters. This is the tour guide's voice, stored in the tree so sessions can resume without re-explaining.
+Each node has a `context:` block -- the orchestrator's explanation of what the concept is and why it matters. This is the guide walking you through the code, stored in the tree so sessions can resume without re-explaining.
 
 File mappings are per diff hunk with line ranges, anchoring every changed line to a concept. Coverage means every hunk appears at least once.
 
@@ -152,6 +156,8 @@ State lives in markdown files. The review tree IS the state -- a single file wit
     review-comments.md      # Captured comments
     analysis.md             # Raw research findings
 ```
+
+Per-PR data persists across sessions. You can come back to a review later and pick up where you left off.
 
 ## Status
 
