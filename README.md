@@ -21,28 +21,34 @@ You give Fowlcon a PR link. It analyzes the code, builds a logical breakdown of 
 
 ### Example
 
-A 390-file PR adding a feature guard to RPC handlers collapses into 6 reviewable concepts:
+A 390-file PR adding a feature guard to RPC handlers collapses into 5 reviewable concepts:
 
 ```
-PR: Add LegacyEndpointGuard for endpoint lifecycle management
-|
-+-- 1. Core: The guard mechanism (2 new files)
-|     +-- Guard class (LaunchDarkly integration, fallback behavior)
-|     +-- Test infrastructure
-|
-+-- 2. Active guard usage (194 zero-traffic handlers)
-|     +-- Example: CloseAccountAppApi.java
-|     +-- ... 193 more following same pattern
-|
-+-- 3. Commented-out guard (196 active handlers)
-|     +-- Example: GetProfileAppApi.java
-|     +-- ... 195 more following same pattern
-|
-+-- 4. Exclusions (mentioned in description, not in diff)
-+-- 5. Description verification (do the claims match the code?)
+PR: Add RoostGuard for roost lifecycle management
+
+1. Core: The guard mechanism
+   1.1. RoostGuard class
+        1.1.1. Feature flag integration
+        1.1.2. SILENT/CHIRP/BLOCK mode switching
+   1.2. Test infrastructure
+
+2. Active guard usage {variation}
+   2.1. Example: CloseNestAppApi
+        2.1.1. Import added
+        2.1.2. Field injection added
+        2.1.3. checkRoost() call
+   ... 193 more following same pattern {repeat}
+
+3. Commented-out guard {variation}
+   3.1. Example: GetFlockProfileAppApi
+   ... 195 more following same pattern {repeat}
+
+4. Exclusions (not in diff -- context explains why)
+
+5. CLAUDE.md update (meta)
 ```
 
-You review the guard mechanism in detail. You confirm one example of the active guard pattern, then accept the remaining 193 as a batch. The whole review takes minutes, not hours.
+You review the guard mechanism in detail. You confirm one example of the active guard pattern, then accept the remaining 193 as a batch. The whole review takes minutes, not hours. Description claims are verified against the actual diff in a separate table.
 
 ## How It Works
 
@@ -53,6 +59,17 @@ Fowlcon is an agentic tool built as markdown prompts -- it runs inside Claude Co
 ```
 
 The orchestrator (Opus) analyzes the PR by spawning concept researchers (Sonnet) that investigate different areas of the code. It builds a review tree, verifies the PR description against the actual diff, checks that every changed line is covered, and walks you through the result.
+
+### The Review Tree
+
+The tree uses two node types:
+
+- **Concept nodes** break a change into sub-concepts (e.g., "guard mechanism" has "class," "modes," "DI pattern")
+- **Variation nodes** collapse repeated patterns (e.g., 194 handlers getting the same 3-line change). One detailed example, the rest marked as `{repeat}`.
+
+Each node has a `context:` block -- the orchestrator's explanation of what the concept is and why it matters. This is the tour guide's voice, stored in the tree so sessions can resume without re-explaining.
+
+File mappings are per diff hunk with line ranges, anchoring every changed line to a concept. Coverage means every hunk appears at least once.
 
 ### Core Principles
 
@@ -74,9 +91,11 @@ These guide both the product and contributions to the project:
 As you walk through the tree, each concept gets a status:
 
 - **Pending** -- no decision yet (default)
-- **Reviewed** -- you looked at it in detail
+- **Reviewed** -- you looked at it in detail (highest confidence)
 - **Accepted** -- you trust the pattern holds ("I get it! Accept the rest.")
 - **+ Comments** -- independent flag, any status can have comments
+
+Confidence hierarchy: reviewed > accepted > pending.
 
 ## Installation
 
@@ -107,9 +126,19 @@ scripts/
   update-node-status.sh     # Atomic tree state updates
   add-comment.sh            # Comment capture with line context
   coverage-report.sh        # Coverage summary from tree
+  check-tree-quality.sh     # Structural quality validation
+
+docs/
+  templates/
+    review-tree.md          # Format spec: the tree IS the state
+    review-comments.md      # Format spec: comment store, V1.1 posting
+
+tests/
+  formats/                  # Parsing tests for format specs (bats-core)
+  scripts/                  # Unit tests for shell scripts (bats-core)
 ```
 
-State lives in markdown files. The review tree IS the state -- a single file with embedded statuses and checkboxes. Shell scripts enforce atomic writes.
+State lives in markdown files. The review tree IS the state -- a single file with embedded statuses, context blocks, and per-hunk file mappings. Shell scripts enforce atomic writes. Format specifications define the contract between the orchestrator, scripts, and future UI implementations.
 
 ## Data
 
@@ -119,11 +148,14 @@ State lives in markdown files. The review tree IS the state -- a single file wit
 
 ~/.cache/code-review-agent/
   org-repo-1234/            # Per-PR review data (ephemeral)
+    review-tree.md          # The review tree (state)
+    review-comments.md      # Captured comments
+    analysis.md             # Raw research findings
 ```
 
 ## Status
 
-Fowlcon is under active development.
+Fowlcon is under active development. Phase 1 (formats + scripts) is in progress.
 
 ## Acknowledgments
 
