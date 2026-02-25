@@ -63,6 +63,9 @@ Review API to avoid a translation layer at posting time:
 Fields appear in the order shown. When optional fields are omitted, remaining
 fields maintain their relative order. Parsing patterns depend on this ordering.
 
+All field values are lowercase. The GitHub API expects uppercase for some values
+(`RIGHT`/`LEFT` for side) -- the posting script must handle the transformation.
+
 ### Field Definitions
 
 - **node**: The tree node this comment is attached to. Any valid node ID from
@@ -270,8 +273,8 @@ integrations.
 - `path` → `file` field
 - `line` → end of `lines` range (the `<end>` in `L<start>-<end>`)
 - `start_line` → start of `lines` range (omit if same as `line`)
-- `side` → `side` field (`right` or `left`)
-- `start_side` → `start_side` field (if present, for multi-line cross-side comments)
+- `side` → `side` field, uppercased (`right` → `RIGHT`, `left` → `LEFT`)
+- `start_side` → `start_side` field, uppercased (if present)
 - `body` → comment body text
 
 Only comments with `status: active` (or no status field) are posted. Comments
@@ -311,6 +314,9 @@ The `add-comment.sh` script appends a new comment block to this file.
 3. Append the new comment block with metadata and text
 4. Write atomically: write full file to temp, then `mv`
 
+Patterns below use bash features (process substitution). Scripts must use
+`#!/usr/bin/env bash`, not `#!/bin/sh`.
+
 ### Parsing patterns
 
 Find all comment IDs:
@@ -345,3 +351,7 @@ diff <(grep -oE '^### C[0-9]+' review-comments.md) \
      <(grep -B5 '^status: deleted' review-comments.md | grep -oE '^### C[0-9]+') \
   | grep '^< ' | sed 's/^< //'
 ```
+**Note:** This grep-based pattern matches `status: deleted` anywhere in the file,
+including inside comment bodies. For accurate results when bodies may contain
+metadata-like text, use the awk extraction pattern to isolate metadata before
+filtering by status.

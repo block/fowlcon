@@ -151,6 +151,102 @@ found { print }
   [[ "$output" == *"SetPlumagePhotoAppApi"* ]]
 }
 
+# --- Header structure ---
+
+@test "file starts with review comments title" {
+  run bash -c "head -1 '$SAMPLE'"
+  [ "$status" -eq 0 ]
+  [[ "$output" == "# Review Comments:"* ]]
+}
+
+@test "header contains PR field" {
+  run grep '^| PR' "$SAMPLE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"hawksbury/hawksbury#34429"* ]]
+}
+
+@test "header contains HEAD SHA" {
+  run grep '^| HEAD' "$SAMPLE"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"27748881a1cb5eb58ed39c3ed2095038cb0cc62a"* ]]
+}
+
+@test "## Comments section header exists" {
+  run grep -c '^## Comments$' "$SAMPLE"
+  [ "$status" -eq 0 ]
+  [ "$output" = "1" ]
+}
+
+# --- Active-comments edge cases ---
+
+@test "active filter works when no comments are deleted" {
+  local tmpfile="$BATS_TMPDIR/all-active.md"
+  cat > "$tmpfile" << 'EOF'
+# Review Comments: Test
+
+| Field | Value |
+|-------|-------|
+| PR    | test/test#1 |
+| HEAD  | abc123 |
+
+## Comments
+
+### C1
+node: 1.1
+type: top-level
+tree_rev: 1
+created: 2026-02-25T10:00:00Z
+
+First comment.
+
+### C2
+node: 2.1
+type: top-level
+tree_rev: 1
+created: 2026-02-25T10:05:00Z
+
+Second comment.
+EOF
+  run bash -c "diff <(grep -oE '^### C[0-9]+' '$tmpfile') <(grep -B5 '^status: deleted' '$tmpfile' | grep -oE '^### C[0-9]+') 2>/dev/null | grep '^< ' | sed 's/^< //'"
+  # When no deleted comments, diff's right side is empty, all IDs appear
+  [[ "$output" == *"### C1"* ]]
+  [[ "$output" == *"### C2"* ]]
+}
+
+@test "active filter returns empty when all comments are deleted" {
+  local tmpfile="$BATS_TMPDIR/all-deleted.md"
+  cat > "$tmpfile" << 'EOF'
+# Review Comments: Test
+
+| Field | Value |
+|-------|-------|
+| PR    | test/test#1 |
+| HEAD  | abc123 |
+
+## Comments
+
+### C1
+node: 1.1
+type: top-level
+status: deleted
+tree_rev: 1
+created: 2026-02-25T10:00:00Z
+
+Deleted.
+
+### C2
+node: 2.1
+type: top-level
+status: deleted
+tree_rev: 1
+created: 2026-02-25T10:05:00Z
+
+Also deleted.
+EOF
+  run bash -c "diff <(grep -oE '^### C[0-9]+' '$tmpfile') <(grep -B5 '^status: deleted' '$tmpfile' | grep -oE '^### C[0-9]+') 2>/dev/null | grep '^< ' | sed 's/^< //'"
+  [ -z "$output" ]
+}
+
 # --- Structural validation ---
 
 @test "inline comments all have file, lines, and side" {

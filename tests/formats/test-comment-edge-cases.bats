@@ -164,6 +164,56 @@ found { print }
 
 # --- Validation (add-comment.sh must enforce) ---
 
+@test "CORRUPTION: delimiter in body splits comment (regression test)" {
+  # This test DEMONSTRATES the corruption. A comment body containing
+  # ### C<digit> at line start causes the extraction pattern to see it
+  # as a new comment, splitting one comment into two broken fragments.
+  # add-comment.sh (Task 4) must prevent this from ever being written.
+  local tmpfile="$BATS_TMPDIR/corrupt.md"
+  cat > "$tmpfile" << 'FIXTURE'
+# Review Comments: Test
+
+| Field       | Value |
+|-------------|-------|
+| PR          | test/test#1 |
+| HEAD        | abc123 |
+
+## Comments
+
+### C1
+node: 1.1
+type: top-level
+tree_rev: 1
+created: 2026-02-25T10:00:00Z
+
+Here is how to reference a comment:
+### C2
+Like that. But this line just corrupted the file.
+
+### C2
+node: 2.1
+type: top-level
+tree_rev: 1
+created: 2026-02-25T10:05:00Z
+
+This is the real C2.
+FIXTURE
+
+  # The file has 2 real comments (C1, C2) but the parser sees 3
+  # because "### C2" in C1's body is a false delimiter
+  run bash -c "grep -cE '^### C[0-9]+' '$tmpfile'"
+  [ "$output" = "3" ]  # WRONG -- should be 2. This is the corruption.
+
+  # Extracting C1 gets truncated at the false delimiter
+  run awk '
+/^### C1$/ { found=1 }
+found && /^### C[0-9]/ && $0 != "### C1" { exit }
+found { print }
+' "$tmpfile"
+  # C1 body is cut short -- the "Like that" line is lost
+  [[ "$output" != *"Like that"* ]]
+}
+
 @test "reject body containing delimiter pattern" {
   # Simulates what add-comment.sh should check before writing
   body='Here is how to reference comment:

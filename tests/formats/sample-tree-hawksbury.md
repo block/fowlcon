@@ -10,20 +10,20 @@
 
 ## Tree
 
-- [reviewed] 1. Core: The roost guard mechanism (new code) {comment}
+- [reviewed] 1. Core: The roost guard mechanism (new code)
   context: |
     New singleton guard that controls roost (endpoint) lifecycle via
     feature flags. Three modes per roost name: SILENT (production default,
     noop), CHIRP (test default, logs calls), BLOCK (rejects calls).
     Injected via @Singleton/@Inject. 47 lines total across 2 new files.
-  - [reviewed] 1.1. RoostGuard class {comment}
+  - [reviewed] 1.1. RoostGuard class
     context: |
       40-line singleton. Takes a FeatureFlags client via @Inject.
       checkRoost() reads a flag keyed by roost name, switches on the
       mode enum. The catch block defaults to SILENT if the flag is not
       configured -- safe default, but swallows all exceptions including
       unexpected ones.
-    - [reviewed] 1.1.1. Feature flag integration and checkRoost() method
+    - [reviewed] 1.1.1. Feature flag integration and checkRoost() method {comment}
       context: |
         Reads hawksbury-roost-mode flag with per-roost targeting.
         The flag key is the roost name string, enabling individual
@@ -31,7 +31,7 @@
       files:
       - hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java L1-18 (+18/-0)
       - hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java L19-40 (+22/-0)
-    - [reviewed] 1.1.2. SILENT/CHIRP/BLOCK mode switching {comment}
+    - [reviewed] 1.1.2. SILENT/CHIRP/BLOCK mode switching
       context: |
         Three-valued enum in a separate file. SILENT = noop,
         CHIRP = log + continue, BLOCK = reject with
@@ -78,7 +78,7 @@
       files:
       - service/src/main/java/com/hawksbury/sanctuary/v2/activity/RefundPaymentAppApi.java L12-12 (+1/-0)
       - service/src/main/java/com/hawksbury/sanctuary/v2/activity/RefundPaymentAppApi.java L28-32 (+2/-0)
-    - [accepted] 2.1.3. SetPlumagePhotoAppApi {repeat}
+    - [accepted] 2.1.3. SetPlumagePhotoAppApi {repeat comment}
       files:
       - service/src/main/java/com/hawksbury/sanctuary/v2/SetPlumagePhotoAppApi.java L15-15 (+1/-0)
       - service/src/main/java/com/hawksbury/sanctuary/v2/SetPlumagePhotoAppApi.java L34-38 (+2/-0)
@@ -86,7 +86,7 @@
       files:
       - service/src/main/java/com/hawksbury/sanctuary/v2/contacts/SyncContactsAppApi.java L8-8 (+1/-0)
       - service/src/main/java/com/hawksbury/sanctuary/v2/contacts/SyncContactsAppApi.java L22-26 (+2/-0)
-    - [accepted] 2.1.5. ChargeNestInternalApi {repeat}
+    - [accepted] 2.1.5. ChargeNestInternalApi {repeat comment}
       files:
       - service/src/main/java/com/hawksbury/plumage/ChargeNestInternalApi.java L10-10 (+1/-0)
       - service/src/main/java/com/hawksbury/plumage/ChargeNestInternalApi.java L25-29 (+2/-0)
@@ -128,13 +128,13 @@
       - service/src/main/java/com/hawksbury/api/GetCreationMechanismsInternalApi.java L8-8 (+1/-0)
       - service/src/main/java/com/hawksbury/api/GetCreationMechanismsInternalApi.java L22-27 (+3/-0)
 
-- [accepted] 3. Commented-out guard: active roosts (guard prepared but dormant) {variation}
+- [accepted] 3. Commented-out guard: active roosts (guard prepared but dormant) {variation comment}
   context: |
     Roosts with active traffic get the guard installed but commented out
     with "// Still in use". The infrastructure is in place so the guard
     can be uncommented when traffic migrates away. Same 2-3 hunk structure
     as node 2, but the checkRoost() line is commented.
-  - [reviewed] 3.1. Example: GetFlockProfileAppApi {comment}
+  - [reviewed] 3.1. Example: GetFlockProfileAppApi
     context: |
       High-traffic profile endpoint. The commented call includes the
       roost name so it can be uncommented as-is when ready. Three hunks
