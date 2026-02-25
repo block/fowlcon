@@ -14,11 +14,17 @@ Every review tree starts with a metadata header:
 |-------------|-------|
 | PR          | <owner/repo#number> |
 | HEAD        | <full commit SHA at time of analysis> |
+| Revision    | <integer, starting at 1> |
 | Tree Built  | <ISO 8601 timestamp> |
 | Updated     | <ISO 8601 timestamp> |
 ```
 
 The HEAD SHA anchors all analysis. If the PR advances past this SHA, the tree is stale.
+
+The Revision counter starts at 1 and increments each time the tree is restructured
+(node IDs change). Comments in `review-comments.md` record the tree revision they
+were created against. If a comment's `tree_rev` doesn't match the current Revision,
+the comment's node reference may be stale and needs remapping.
 
 ## Tree
 
