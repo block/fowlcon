@@ -183,6 +183,8 @@ found { print }
 ### C1
 node: 1.1
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-25T10:00:00Z
 
@@ -193,6 +195,8 @@ Like that. But this line just corrupted the file.
 ### C2
 node: 2.1
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-25T10:05:00Z
 

@@ -79,15 +79,13 @@ All field values are lowercase. The GitHub API expects uppercase for some values
   - `top-level` -- about a concept or the PR generally. No `file`, `lines`,
     or `side` fields. Maps to the review body text in V1.1.
 
-- **status**: One of:
+- **status**: Required. One of:
   - `active` -- this comment will be included in summaries and V1.1 posting.
-    Default; can be omitted (absence means active).
   - `deleted` -- soft-deleted by the reviewer. Stays in the file for audit
     trail but excluded from summaries and posting.
 
-- **source**: Where this comment originated. One of:
-  - `reviewer` -- the customer typed it during the walkthrough (default; can
-    be omitted, absence means reviewer)
+- **source**: Required. Where this comment originated. One of:
+  - `reviewer` -- the customer typed it during the walkthrough.
   - A bot or tool name (e.g., `graphite-agent`, `coderabbit`) -- imported from
     an existing PR comment. The orchestrator may import bot comments to surface
     them during the walkthrough. Imported comments have their body prefixed
@@ -167,6 +165,7 @@ Inline comment on a leaf node:
 ### C1
 node: 1.1.1
 type: inline
+status: active
 source: reviewer
 file: hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java
 lines: L19-40
@@ -179,12 +178,14 @@ If the LaunchDarkly client throws a network error or a deserialization bug, this
 swallows it silently. Consider logging the exception even in SILENT mode.
 ```
 
-Top-level comment (source omitted -- defaults to reviewer):
+Top-level comment:
 
 ```
 ### C2
 node: root
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-24T11:15:00Z
 
@@ -199,6 +200,7 @@ Comment on a `{repeat}` node:
 ### C3
 node: 2.1.5
 type: inline
+status: active
 source: reviewer
 file: service/src/main/java/com/hawksbury/plumage/ChargeNestInternalApi.java
 lines: L25-29
@@ -218,6 +220,8 @@ Comment on a non-leaf concept node (no specific code):
 ### C4
 node: 3
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-24T11:30:00Z
 

@@ -194,6 +194,8 @@ found { print }
 ### C1
 node: 1.1
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-25T10:00:00Z
 
@@ -202,6 +204,8 @@ First comment.
 ### C2
 node: 2.1
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-25T10:05:00Z
 
@@ -229,6 +233,7 @@ EOF
 node: 1.1
 type: top-level
 status: deleted
+source: reviewer
 tree_rev: 1
 created: 2026-02-25T10:00:00Z
 
@@ -238,6 +243,7 @@ Deleted.
 node: 2.1
 type: top-level
 status: deleted
+source: reviewer
 tree_rev: 1
 created: 2026-02-25T10:05:00Z
 

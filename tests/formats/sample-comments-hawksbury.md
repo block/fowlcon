@@ -10,6 +10,7 @@
 ### C1
 node: 1.1.1
 type: inline
+status: active
 source: reviewer
 file: hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java
 lines: L19-40
@@ -26,6 +27,8 @@ would preserve the safe default while making failures visible.
 ### C2
 node: root
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-24T11:15:00Z
 
@@ -36,6 +39,7 @@ flexibility. Main concern is the silent exception swallowing noted in C1.
 ### C3
 node: 2.1.5
 type: inline
+status: active
 source: reviewer
 file: service/src/main/java/com/hawksbury/plumage/ChargeNestInternalApi.java
 lines: L25-29
@@ -52,6 +56,8 @@ care about field order.
 ### C4
 node: 3
 type: top-level
+status: active
+source: reviewer
 tree_rev: 1
 created: 2026-02-24T11:30:00Z
 
