@@ -49,6 +49,7 @@ docs/
 - All scripts write atomically: temp file + `mv` (POSIX rename)
 - Single-writer assumption: only the orchestrator triggers writes, through these scripts
 - Scripts validate inputs (reject invalid statuses, missing files)
+- Scripts use `set -euo pipefail`. **Grep hazard:** `grep` returns exit 1 when no matches, which kills the script in a pipeline. Use `|| true` on grep pipelines where zero matches is valid: `VAR=$(grep PATTERN file | ... || true)`
 - Scripts ship with the tool and are installed alongside prompts
 
 ### State Files
