@@ -1,0 +1,23 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  bats:
+    name: Format parsing tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats
+
+      - name: Run all bats tests
+        # TODO: Expand to `bats tests/` when script tests are added (Tasks 3-6)
+        run: bats tests/formats/
