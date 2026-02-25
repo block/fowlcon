@@ -108,7 +108,7 @@ Confidence hierarchy: reviewed > accepted > pending.
 git clone https://github.com/block/fowlcon.git
 
 # Run the install script
-cd fowlcon && ./script/install
+cd fowlcon && ./scripts/install
 ```
 
 This copies agent and command files to `~/.claude/` (or your platform's agent directory).
