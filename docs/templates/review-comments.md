@@ -127,9 +127,34 @@ fields maintain their relative order. Parsing patterns depend on this ordering.
 The free-text body follows the metadata fields, separated by a blank line.
 The body continues until the next `### C<N>` heading or end of file.
 
-The body can contain markdown formatting. Avoid starting a line with `### C`
-followed by a digit -- this would be parsed as a new comment delimiter. Use
-a different heading level or rephrase if needed.
+The body can contain: markdown formatting, emojis, code blocks (fenced or
+indented), URLs, non-ASCII text (CJK, Arabic, accented characters), empty
+lines, and metadata-like text (e.g., `node: 1.1` in prose).
+
+### Content Restrictions
+
+**Hard restriction (enforced by `add-comment.sh`, causes corruption if violated):**
+
+- The body MUST NOT contain `### C` followed by a digit (`0-9`) at the start
+  of a line. This is the comment delimiter pattern (`^### C[0-9]`). If present,
+  it splits the comment into two, corrupting both. This applies even inside
+  fenced code blocks -- the parser does not track markdown fence state.
+  - `add-comment.sh` must reject body text that matches `^### C[0-9]`
+  - If the reviewer needs to reference a comment ID in prose, use inline code:
+    `` `### C1` `` (backtick-wrapped) or rephrase as "comment C1"
+
+**Soft restriction (causes incorrect grep results, not corruption):**
+
+- Simple `grep`-based patterns (e.g., `grep '^node:'`) will match metadata-like
+  text in the body as well as actual metadata. For accurate metadata extraction,
+  use the awk extraction pattern (which respects the blank-line separator between
+  header and body) rather than raw grep across the whole file.
+
+**Validated by `add-comment.sh` (Task 4):**
+
+- Body text must not contain null bytes
+- Body text must not contain the delimiter pattern `^### C[0-9]`
+- Metadata field values must be single-line (no embedded newlines)
 
 ### Examples
 
