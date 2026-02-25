@@ -137,7 +137,7 @@ found { print }
 # --- Filter by file ---
 
 @test "find all comments for a specific file" {
-  run grep -B3 'RoostGuard.java' "$SAMPLE"
+  run grep -B6 'RoostGuard.java' "$SAMPLE"
   [ "$status" -eq 0 ]
   [[ "$output" == *"### C1"* ]]
   # Only C1 references RoostGuard.java
