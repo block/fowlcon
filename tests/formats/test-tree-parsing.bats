@@ -4,7 +4,8 @@
 # Mirrors the comment parsing tests -- ensures tree format is equally
 # well-tested for downstream shell scripts (Tasks 3-6).
 
-SAMPLE="tests/formats/sample-tree-hawksbury.md"
+REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
+SAMPLE="$REPO_ROOT/tests/formats/sample-tree-hawksbury.md"
 
 # --- Header structure ---
 

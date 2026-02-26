@@ -13,10 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install bats-core
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y bats
+      - name: Setup Bats
+        uses: bats-core/bats-action@e412797c46257a2dbf3775f6f6010b33ee6cb99f # v3.0.1
 
       - name: Run all bats tests
         run: bats tests/formats/ tests/scripts/

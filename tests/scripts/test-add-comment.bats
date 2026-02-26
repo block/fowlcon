@@ -3,20 +3,21 @@
 # Tests for scripts/add-comment.sh
 # TDD: write tests first, then implement the script.
 
-COMMENTS_SAMPLE="tests/formats/sample-comments-hawksbury.md"
-TREE_SAMPLE="tests/formats/sample-tree-hawksbury.md"
-SCRIPT="scripts/add-comment.sh"
+REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
+COMMENTS_SAMPLE="$REPO_ROOT/tests/formats/sample-comments-hawksbury.md"
+TREE_SAMPLE="$REPO_ROOT/tests/formats/sample-tree-hawksbury.md"
+SCRIPT="$REPO_ROOT/scripts/add-comment.sh"
 
 setup() {
-  cp "$COMMENTS_SAMPLE" "$BATS_TMPDIR/comments.md"
-  cp "$TREE_SAMPLE" "$BATS_TMPDIR/tree.md"
+  cp "$COMMENTS_SAMPLE" "$BATS_TEST_TMPDIR/comments.md"
+  cp "$TREE_SAMPLE" "$BATS_TEST_TMPDIR/tree.md"
 }
 
 # --- Adding inline comments ---
 
 @test "adds inline comment with all metadata" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1.2" \
     --type "inline" \
     --file "hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java" \
@@ -24,20 +25,20 @@ setup() {
     --side "right" \
     --text "The catch block swallows all exceptions silently."
   [ "$status" -eq 0 ]
-  grep -q -- "RoostGuard.java" "$BATS_TMPDIR/comments.md"
-  grep -q -- "catch block swallows" "$BATS_TMPDIR/comments.md"
-  grep -q -- "node: 1.1.2" "$BATS_TMPDIR/comments.md"
-  grep -q -- "type: inline" "$BATS_TMPDIR/comments.md"
-  grep -q -- "status: active" "$BATS_TMPDIR/comments.md"
-  grep -q -- "source: reviewer" "$BATS_TMPDIR/comments.md"
-  grep -q -- "side: right" "$BATS_TMPDIR/comments.md"
-  grep -q -- "lines: L19-40" "$BATS_TMPDIR/comments.md"
+  grep -q -- "RoostGuard.java" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "catch block swallows" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "node: 1.1.2" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "type: inline" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "status: active" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "source: reviewer" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "side: right" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "lines: L19-40" "$BATS_TEST_TMPDIR/comments.md"
 }
 
 @test "assigns next sequential comment ID" {
   # Sample has C1-C5, so new comment should be C6
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1.2" \
     --type "inline" \
     --file "hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java" \
@@ -45,12 +46,12 @@ setup() {
     --side "right" \
     --text "Test comment."
   [ "$status" -eq 0 ]
-  grep -q -- "^### C6$" "$BATS_TMPDIR/comments.md"
+  grep -q -- "^### C6$" "$BATS_TEST_TMPDIR/comments.md"
 }
 
 @test "includes tree_rev from tree file" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1.2" \
     --type "inline" \
     --file "hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java" \
@@ -58,12 +59,12 @@ setup() {
     --side "right" \
     --text "Test."
   [ "$status" -eq 0 ]
-  grep -q -- "tree_rev: 1" "$BATS_TMPDIR/comments.md"
+  grep -q -- "tree_rev: 1" "$BATS_TEST_TMPDIR/comments.md"
 }
 
 @test "sets created timestamp in ISO 8601" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1.2" \
     --type "inline" \
     --file "hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java" \
@@ -73,34 +74,34 @@ setup() {
   [ "$status" -eq 0 ]
   # Extract the created timestamp from the new comment (C6)
   local ts
-  ts=$(awk '/^### C6$/{found=1} found && /^created:/{print $2; exit}' "$BATS_TMPDIR/comments.md")
+  ts=$(awk '/^### C6$/{found=1} found && /^created:/{print $2; exit}' "$BATS_TEST_TMPDIR/comments.md")
   [[ "$ts" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]
 }
 
 # --- Adding top-level comments ---
 
 @test "adds top-level comment without file/lines/side" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "Overall the guard pattern is sound."
   [ "$status" -eq 0 ]
-  grep -q -- "type: top-level" "$BATS_TMPDIR/comments.md"
-  grep -q -- "node: root" "$BATS_TMPDIR/comments.md"
-  grep -q -- "guard pattern is sound" "$BATS_TMPDIR/comments.md"
+  grep -q -- "type: top-level" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "node: root" "$BATS_TEST_TMPDIR/comments.md"
+  grep -q -- "guard pattern is sound" "$BATS_TEST_TMPDIR/comments.md"
 }
 
 @test "top-level comment has no file or lines fields" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "3" \
     --type "top-level" \
     --text "Concern about commented-out code."
   [ "$status" -eq 0 ]
   # Extract the new comment block
   local block
-  block=$(awk '/^### C6$/{found=1} found && /^### C[0-9]/ && $0 != "### C6"{exit} found{print}' "$BATS_TMPDIR/comments.md")
+  block=$(awk '/^### C6$/{found=1} found && /^### C[0-9]/ && $0 != "### C6"{exit} found{print}' "$BATS_TEST_TMPDIR/comments.md")
   [[ "$block" != *"file:"* ]]
   [[ "$block" != *"lines:"* ]]
   [[ "$block" != *"side:"* ]]
@@ -109,51 +110,51 @@ setup() {
 # --- Source field ---
 
 @test "defaults source to reviewer" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "Test."
   [ "$status" -eq 0 ]
   local block
-  block=$(awk '/^### C6$/{found=1} found && /^### C[0-9]/ && $0 != "### C6"{exit} found{print}' "$BATS_TMPDIR/comments.md")
+  block=$(awk '/^### C6$/{found=1} found && /^### C[0-9]/ && $0 != "### C6"{exit} found{print}' "$BATS_TEST_TMPDIR/comments.md")
   [[ "$block" == *"source: reviewer"* ]]
 }
 
 @test "accepts custom source" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --source "coderabbit" \
     --text "Imported bot comment."
   [ "$status" -eq 0 ]
-  grep -q -- "source: coderabbit" "$BATS_TMPDIR/comments.md"
+  grep -q -- "source: coderabbit" "$BATS_TEST_TMPDIR/comments.md"
 }
 
 # --- Atomic writes ---
 
 @test "writes atomically via temp file" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "Test."
   [ "$status" -eq 0 ]
-  [ ! -f "$BATS_TMPDIR/comments.md.tmp" ]
+  [ ! -f "$BATS_TEST_TMPDIR/comments.md.tmp" ]
 }
 
 @test "file integrity -- existing comments preserved" {
   local before
-  before=$(grep -c -- "^### C[0-9]" "$BATS_TMPDIR/comments.md")
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  before=$(grep -c -- "^### C[0-9]" "$BATS_TEST_TMPDIR/comments.md")
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "New comment."
   [ "$status" -eq 0 ]
   local after
-  after=$(grep -c -- "^### C[0-9]" "$BATS_TMPDIR/comments.md")
+  after=$(grep -c -- "^### C[0-9]" "$BATS_TEST_TMPDIR/comments.md")
   [ "$after" -eq "$((before + 1))" ]
 }
 
@@ -161,8 +162,8 @@ setup() {
 
 @test "rejects body containing delimiter pattern at line start" {
   local body=$'First line\n### C1\nThird line'
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "$body"
@@ -170,8 +171,8 @@ setup() {
 }
 
 @test "allows delimiter pattern mid-line (not at start)" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "Reference: see ### C1 for details"
@@ -192,8 +193,8 @@ setup() {
 # --- Input validation ---
 
 @test "rejects invalid node ID" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1+" \
     --type "top-level" \
     --text "Test."
@@ -201,8 +202,8 @@ setup() {
 }
 
 @test "rejects invalid type" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "suggestion" \
     --text "Test."
@@ -210,8 +211,8 @@ setup() {
 }
 
 @test "rejects inline comment without file" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1" \
     --type "inline" \
     --lines "19-40" \
@@ -221,8 +222,8 @@ setup() {
 }
 
 @test "rejects inline comment without lines" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1" \
     --type "inline" \
     --file "some/file.java" \
@@ -232,8 +233,8 @@ setup() {
 }
 
 @test "inline comment without side defaults to right" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1" \
     --type "inline" \
     --file "some/file.java" \
@@ -241,13 +242,13 @@ setup() {
     --text "Side should default."
   [ "$status" -eq 0 ]
   local block
-  block=$(awk '/^### C6$/{found=1} found && /^### C[0-9]/ && $0 != "### C6"{exit} found{print}' "$BATS_TMPDIR/comments.md")
+  block=$(awk '/^### C6$/{found=1} found && /^### C[0-9]/ && $0 != "### C6"{exit} found{print}' "$BATS_TEST_TMPDIR/comments.md")
   [[ "$block" == *"side: right"* ]]
 }
 
 @test "rejects invalid side value" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1" \
     --type "inline" \
     --file "some/file.java" \
@@ -264,7 +265,7 @@ setup() {
 
 @test "rejects non-existent comments file" {
   run "$SCRIPT" "/tmp/nonexistent.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "Test."
@@ -272,7 +273,7 @@ setup() {
 }
 
 @test "rejects non-existent tree file" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
     --tree "/tmp/nonexistent-tree.md" \
     --node "root" \
     --type "top-level" \
@@ -283,7 +284,7 @@ setup() {
 # --- Empty file ---
 
 @test "adds first comment to empty comments file" {
-  cat > "$BATS_TMPDIR/empty.md" << 'EOF'
+  cat > "$BATS_TEST_TMPDIR/empty.md" << 'EOF'
 # Review Comments: Test
 
 | Field       | Value |
@@ -293,27 +294,27 @@ setup() {
 
 ## Comments
 EOF
-  run "$SCRIPT" "$BATS_TMPDIR/empty.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/empty.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "First comment ever."
   [ "$status" -eq 0 ]
-  grep -q -- "^### C1$" "$BATS_TMPDIR/empty.md"
+  grep -q -- "^### C1$" "$BATS_TEST_TMPDIR/empty.md"
 }
 
 # --- Lines format validation ---
 
 @test "rejects invalid lines format" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1" --type "inline" --file "f.java" --lines "abc" --side "right" --text "X"
   [ "$status" -ne 0 ]
 }
 
 @test "rejects lines without dash" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1" --type "inline" --file "f.java" --lines "42" --side "right" --text "X"
   [ "$status" -ne 0 ]
 }
@@ -321,8 +322,8 @@ EOF
 # --- Node existence validation ---
 
 @test "rejects comment on non-existent node" {
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "99.99" \
     --type "top-level" \
     --text "Ghost node."
@@ -333,8 +334,8 @@ EOF
 
 @test "adds {comment} flag to tree node" {
   # Node 1.1.2 has no {comment} flag
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1.2" \
     --type "inline" \
     --file "hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java" \
@@ -342,24 +343,24 @@ EOF
     --side "right" \
     --text "Test flag addition."
   [ "$status" -eq 0 ]
-  grep -q -- "1\.1\.2\..*{comment}" "$BATS_TMPDIR/tree.md"
+  grep -q -- "1\.1\.2\..*{comment}" "$BATS_TEST_TMPDIR/tree.md"
 }
 
 @test "adds {comment} to node with existing {variation} flag" {
   # Node 2 has {variation} but no {comment}
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "2" \
     --type "top-level" \
     --text "Concern about active guard pattern."
   [ "$status" -eq 0 ]
-  grep -q -- "\] 2\..*{variation comment}" "$BATS_TMPDIR/tree.md"
+  grep -q -- "\] 2\..*{variation comment}" "$BATS_TEST_TMPDIR/tree.md"
 }
 
 @test "does not duplicate {comment} flag if already present" {
   # Node 1.1.1 already has {comment}
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "1.1.1" \
     --type "inline" \
     --file "hawksbury/core/src/main/java/com/hawksbury/legacy/RoostGuard.java" \
@@ -369,13 +370,13 @@ EOF
   [ "$status" -eq 0 ]
   # Should have exactly one {comment}, not {comment comment}
   local line
-  line=$(grep -- "1\.1\.1\." "$BATS_TMPDIR/tree.md")
+  line=$(grep -- "1\.1\.1\." "$BATS_TEST_TMPDIR/tree.md")
   [[ "$line" == *"{comment}"* ]]
   [[ "$line" != *"comment comment"* ]]
 }
 
 @test "{comment} flag set even when title contains word comment" {
-  cat > "$BATS_TMPDIR/title-tree.md" << 'TREE'
+  cat > "$BATS_TEST_TMPDIR/title-tree.md" << 'TREE'
 # Review Tree: Test
 
 | Field       | Value |
@@ -403,7 +404,7 @@ Files mapped to tree: 1
 Unmapped files: none
 TREE
 
-  cat > "$BATS_TMPDIR/title-comments.md" << 'COMMENTS'
+  cat > "$BATS_TEST_TMPDIR/title-comments.md" << 'COMMENTS'
 # Review Comments: Test
 
 | Field       | Value |
@@ -414,27 +415,27 @@ TREE
 ## Comments
 COMMENTS
 
-  run "$SCRIPT" "$BATS_TMPDIR/title-comments.md" \
-    --tree "$BATS_TMPDIR/title-tree.md" \
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/title-comments.md" \
+    --tree "$BATS_TEST_TMPDIR/title-tree.md" \
     --node "1" \
     --type "inline" \
     --file "src/parser.js" \
     --lines "1-50" \
     --text "Needs error handling."
   [ "$status" -eq 0 ]
-  grep -q -- "1\..*{comment}" "$BATS_TMPDIR/title-tree.md"
+  grep -q -- "1\..*{comment}" "$BATS_TEST_TMPDIR/title-tree.md"
 }
 
 @test "root comment does not modify tree" {
   local before
-  before=$(cat "$BATS_TMPDIR/tree.md")
-  run "$SCRIPT" "$BATS_TMPDIR/comments.md" \
-    --tree "$BATS_TMPDIR/tree.md" \
+  before=$(cat "$BATS_TEST_TMPDIR/tree.md")
+  run "$SCRIPT" "$BATS_TEST_TMPDIR/comments.md" \
+    --tree "$BATS_TEST_TMPDIR/tree.md" \
     --node "root" \
     --type "top-level" \
     --text "Root comment."
   [ "$status" -eq 0 ]
   local after
-  after=$(cat "$BATS_TMPDIR/tree.md")
+  after=$(cat "$BATS_TEST_TMPDIR/tree.md")
   [ "$before" = "$after" ]
 }

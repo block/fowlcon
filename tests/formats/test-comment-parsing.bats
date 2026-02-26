@@ -4,7 +4,8 @@
 # These are load-bearing patterns used by shell scripts -- cross-platform
 # breakage (BSD vs GNU) must be caught here.
 
-SAMPLE="tests/formats/sample-comments-hawksbury.md"
+REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
+SAMPLE="$REPO_ROOT/tests/formats/sample-comments-hawksbury.md"
 
 # --- Basic ID operations ---
 

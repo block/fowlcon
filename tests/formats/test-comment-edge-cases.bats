@@ -4,7 +4,8 @@
 # Verifies that emojis, code blocks, non-ASCII text, markdown formatting,
 # and metadata-like body content don't break parsing patterns.
 
-SAMPLE="tests/formats/sample-comments-edge-cases.md"
+REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
+SAMPLE="$REPO_ROOT/tests/formats/sample-comments-edge-cases.md"
 
 # --- Emojis ---
 
