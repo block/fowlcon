@@ -132,10 +132,18 @@ scripts/
   coverage-report.sh        # Coverage summary from tree
   check-tree-quality.sh     # Structural quality validation
 
+templates/
+  review-tree.md            # Format spec: the tree IS the state
+  review-comments.md        # Format spec: comment store, V1.1 posting
+
+troubleshoot/
+  agent-struggling.md       # Diagnostic guide loaded on agent failure
+
 docs/
-  templates/
-    review-tree.md          # Format spec: the tree IS the state
-    review-comments.md      # Format spec: comment store, V1.1 posting
+  guides/                   # Version-independent development guidance
+  hackweek/                 # Feb 23-26 2026 sprint archive
+  v1/                       # Active V1 plans, designs, decision records
+  private/                  # Investigation workbench (gitignored)
 
 tests/
   formats/                  # Parsing tests for format specs (bats-core)

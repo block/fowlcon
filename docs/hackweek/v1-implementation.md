@@ -29,7 +29,7 @@ Format designed and approved. Key decisions:
 - Dot-separated numeric IDs with no depth limit
 - Description verification as table only, not tree nodes
 
-**Files:** `docs/templates/review-tree.md`, `tests/formats/sample-tree-hawksbury.md`
+**Files:** `templates/review-tree.md`, `tests/formats/sample-tree-hawksbury.md`
 
 ---
 
@@ -42,7 +42,7 @@ Format designed and approved. Key decisions:
 - Source provenance field, soft deletion via status, tree revision tracking
 - 43 tests across 2 suites
 
-**Files:** `docs/templates/review-comments.md`, `tests/formats/sample-comments-hawksbury.md`, `tests/formats/sample-comments-edge-cases.md`
+**Files:** `templates/review-comments.md`, `tests/formats/sample-comments-hawksbury.md`, `tests/formats/sample-comments-edge-cases.md`
 
 ---
 
@@ -192,7 +192,7 @@ YAML frontmatter: name (review-pr), description, model (opus). The prompt covers
 - Startup: read user-hints.md, check for existing per-PR data
 - Fetch PR diff + description + metadata
 - Spawn concept-researchers (as few passes as needed, maximum 3)
-- Build the review tree using the format from `docs/templates/review-tree.md`
+- Build the review tree using the format from `templates/review-tree.md`
 - Verify description against tree
 - Run coverage checker
 - Evaluate complexity (7 top-level threshold, based on Miller's 7±2)

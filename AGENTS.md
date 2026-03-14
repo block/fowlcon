@@ -25,13 +25,22 @@ scripts/
   coverage-report.sh        # Coverage summary from tree
   check-tree-quality.sh     # Structural quality validation
 
+templates/
+  review-tree.md            # Format spec: the tree IS the state
+  review-comments.md        # Format spec: comment store
+
+troubleshoot/
+  agent-struggling.md       # Diagnostic guide loaded on agent failure
+
 tests/
   scripts/                  # bats-core tests for shell scripts
   formats/                  # Sample format files for validation
 
 docs/
-  templates/                # Format templates (review-tree, review-comments, user-hints)
-  troubleshoot/             # Diagnostic guides loaded only on failure
+  guides/                   # Version-independent development guidance
+  hackweek/                 # Feb 23-26 2026 sprint archive
+  v1/                       # Active V1 work: plans, designs, decision records
+  private/                  # Investigation workbench (scratch and reconstruction work)
 ```
 
 ## Conventions
@@ -81,10 +90,23 @@ Files in this repo are loaded into LLM context windows during operation. Stale r
 When adding forward-looking version notes to files, add an entry here so future agents know to clean them up.
 
 **Known examples:**
-- `docs/templates/review-comments.md` has a **V1.1 Posting Compatibility** section (~50 lines) with GitHub API mapping, GraphQL recommendations, and graceful degradation strategy. This is forward-looking spec commentary for V1.0. When V1.1 posting is implemented, replace this section with actual implementation docs.
+- `templates/review-comments.md` has a **V1.1 Posting Compatibility** section (~50 lines) with GitHub API mapping, GraphQL recommendations, and graceful degradation strategy. This is forward-looking spec commentary for V1.0. When V1.1 posting is implemented, replace this section with actual implementation docs.
 
 ### Commits
 
 - One logical change per commit
 - Descriptive messages explaining why, not just what
 - Every task ends with: verify, document, commit
+
+### Doc File Routing
+
+Working files go to predictable locations based on their type:
+
+- **Workbench files** (scratch, investigation, drafts) go in `docs/private/`
+- **Designs, specs, plans, and decision records** go in the current version folder (e.g., `docs/v1/`). Examples: implementation plans, design-decisions docs, reorg specs.
+- **Curated research** goes in the current version's `research/` subfolder (e.g., `docs/v1/research/`). Research starts in `docs/private/` and gets promoted when it's high-signal enough to keep.
+- **Version-independent guides** stay in `docs/guides/`
+
+The current version is declared in `docs/README.md`.
+
+Tools may try to write specs or plans to their own default locations (e.g., `docs/superpowers/specs/`). Redirect these to the appropriate folder.
